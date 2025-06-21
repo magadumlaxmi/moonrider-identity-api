@@ -8,15 +8,21 @@ dotenv.config();
 const app = express();
 const prisma = new PrismaClient();
 
-app.use(cors()); // Enable CORS
-app.use(express.json()); // Parse JSON
+// ✅ Allow frontend domain for CORS
+app.use(cors({
+  origin: 'https://moonrider-identity-api.vercel.app', // frontend URL
+  methods: ['POST', 'GET'],
+  credentials: true
+}));
 
-// ✅ Home route for Render to show a working message
+app.use(express.json());
+
+// ✅ Home route
 app.get('/', (req, res) => {
   res.send('✅ Moonrider Identity API is live. Use POST /identify');
 });
 
-// ✅ Main Identity Reconciliation Endpoint
+// ✅ Identify API (only POST)
 app.post('/identify', async (req, res) => {
   const { email, phoneNumber } = req.body;
 
@@ -25,33 +31,30 @@ app.post('/identify', async (req, res) => {
   }
 
   try {
-    // Find all matching contacts
     const contacts = await prisma.contact.findMany({
       where: {
         OR: [
           email ? { email } : undefined,
-          phoneNumber ? { phoneNumber } : undefined,
-        ].filter(Boolean),
+          phoneNumber ? { phoneNumber } : undefined
+        ].filter(Boolean)
       },
-      orderBy: { createdAt: 'asc' },
+      orderBy: { createdAt: 'asc' }
     });
 
     let primaryContact = null;
     let allContacts = [...contacts];
 
     if (contacts.length === 0) {
-      // No match: create a new primary contact
       const newPrimary = await prisma.contact.create({
         data: {
           email,
           phoneNumber,
-          linkPrecedence: 'primary',
-        },
+          linkPrecedence: 'primary'
+        }
       });
       primaryContact = newPrimary;
       allContacts = [newPrimary];
     } else {
-      // Find the primary contact
       primaryContact = contacts.find(c => c.linkPrecedence === 'primary') || contacts[0];
 
       const alreadyExists = contacts.some(c =>
@@ -59,27 +62,25 @@ app.post('/identify', async (req, res) => {
       );
 
       if (!alreadyExists) {
-        // Create a new secondary contact
         const newSecondary = await prisma.contact.create({
           data: {
             email,
             phoneNumber,
             linkPrecedence: 'secondary',
-            linkedId: primaryContact.id,
-          },
+            linkedId: primaryContact.id
+          }
         });
         allContacts.push(newSecondary);
       }
     }
 
-    // Fetch all linked contacts
     const linkedContacts = await prisma.contact.findMany({
       where: {
         OR: [
           { id: primaryContact.id },
-          { linkedId: primaryContact.id },
-        ],
-      },
+          { linkedId: primaryContact.id }
+        ]
+      }
     });
 
     const emails = [...new Set(linkedContacts.map(c => c.email).filter(Boolean))];
@@ -93,26 +94,23 @@ app.post('/identify', async (req, res) => {
         primaryContactId: primaryContact.id,
         emails,
         phoneNumbers,
-        secondaryContactIds,
-      },
+        secondaryContactIds
+      }
     });
 
   } catch (error) {
-    console.error('❌ Server error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error(error);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
 // ✅ Export app for testing
 module.exports = app;
 
-// ✅ Run server only if not in test
+// ✅ Start server
 if (require.main === module) {
-  const PORT = process.env.PORT || 3000;
+  const PORT = process.env.PORT;
   app.listen(PORT, () => {
     console.log(`🚀 Server running at http://localhost:${PORT}`);
   });
 }
-
-
-
