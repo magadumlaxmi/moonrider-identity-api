@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Moonrider Identity API</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      background-color: #f5f7fa;
+    }
+
+    h2 {
+      color: #333;
+    }
+
+    form {
+      max-width: 400px;
+      margin-bottom: 20px;
+    }
+
+    input, button {
+      display: block;
+      width: 100%;
+      margin-bottom: 15px;
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    pre {
+      background: #eef;
+      padding: 15px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h2>🔍 Identity Reconciliation</h2>
+  <form id="identify-form">
+    <input type="email" id="email" placeholder="Email (optional)" />
+    <input type="text" id="phone" placeholder="Phone Number (optional)" />
+    <button type="submit">Identify</button>
+  </form>
+
+  <h3>Response:</h3>
+  <pre id="response">Submit a request to see output here...</pre>
+
+  <script>
+    const form = document.getElementById('identify-form');
+    const responseBox = document.getElementById('response');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const phoneNumber = document.getElementById('phone').value;
+
+      const body = {};
+      if (email) body.email = email;
+      if (phoneNumber) body.phoneNumber = phoneNumber;
+
+      try {
+        const res = await fetch('https://moonrider-identity-api-1.onrender.com', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+
+        const data = await res.json();
+        responseBox.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        responseBox.textContent = '❌ Error: ' + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
