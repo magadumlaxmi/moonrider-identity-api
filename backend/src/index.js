@@ -103,8 +103,10 @@ module.exports = app;
 
 // ✅ Run server only when not testing
 if (require.main === module) {
-  const PORT = process.env.PORT || 3000;
+  const PORT = process.env.PORT; // Remove the fallback to 3000
   app.listen(PORT, () => {
     console.log(`🚀 Server running at http://localhost:${PORT}`);
   });
 }
+
+
