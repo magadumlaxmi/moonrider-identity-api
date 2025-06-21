@@ -39,6 +39,7 @@
       background: #eef;
       padding: 15px;
       border-radius: 8px;
+      white-space: pre-wrap;
     }
   </style>
 </head>
@@ -68,7 +69,7 @@
       if (phoneNumber) body.phoneNumber = phoneNumber;
 
       try {
-        const res = await fetch('https://moonrider-identity-api-1.onrender.com', {
+        const res = await fetch('https://moonrider-identity-api-3.onrender.com/identify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
