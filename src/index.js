@@ -9,6 +9,12 @@ const prisma = new PrismaClient();
 
 app.use(express.json());
 
+// ✅ Home Route - to avoid "Cannot GET /"
+app.get('/', (req, res) => {
+  res.send('✅ Moonrider Identity API is live. Use POST /identify');
+});
+
+// ✅ Main Identity Reconciliation Route
 app.post('/identify', async (req, res) => {
   const { email, phoneNumber } = req.body;
 
@@ -17,7 +23,6 @@ app.post('/identify', async (req, res) => {
   }
 
   try {
-    // Fetch all matching contacts (email or phoneNumber)
     const contacts = await prisma.contact.findMany({
       where: {
         OR: [
@@ -32,7 +37,6 @@ app.post('/identify', async (req, res) => {
     let allContacts = [...contacts];
 
     if (contacts.length === 0) {
-      // No match, create a new primary contact
       const newPrimary = await prisma.contact.create({
         data: {
           email,
@@ -43,7 +47,6 @@ app.post('/identify', async (req, res) => {
       primaryContact = newPrimary;
       allContacts = [newPrimary];
     } else {
-      // Find the primary contact
       primaryContact = contacts.find(c => c.linkPrecedence === 'primary') || contacts[0];
 
       const alreadyExists = contacts.some(c =>
@@ -51,7 +54,6 @@ app.post('/identify', async (req, res) => {
       );
 
       if (!alreadyExists) {
-        // Create a secondary contact linked to the primary
         const newSecondary = await prisma.contact.create({
           data: {
             email,
@@ -64,7 +66,6 @@ app.post('/identify', async (req, res) => {
       }
     }
 
-    // Fetch all linked contacts (secondary or primary)
     const linkedContacts = await prisma.contact.findMany({
       where: {
         OR: [
@@ -105,4 +106,3 @@ if (require.main === module) {
     console.log(`🚀 Server running at http://localhost:${PORT}`);
   });
 }
-
