@@ -8,9 +8,9 @@ dotenv.config();
 const app = express();
 const prisma = new PrismaClient();
 
-// ✅ Allow frontend domain for CORS
+// ✅ CORS: Allow frontend domain (Vercel)
 app.use(cors({
-  origin: 'https://moonrider-identity-api.vercel.app', // frontend URL
+  origin: 'https://moonrider-identity-api.vercel.app', // Your Vercel frontend
   methods: ['POST', 'GET'],
   credentials: true
 }));
@@ -22,7 +22,7 @@ app.get('/', (req, res) => {
   res.send('✅ Moonrider Identity API is live. Use POST /identify');
 });
 
-// ✅ Identify API (only POST)
+// ✅ Identify API
 app.post('/identify', async (req, res) => {
   const { email, phoneNumber } = req.body;
 
@@ -104,12 +104,12 @@ app.post('/identify', async (req, res) => {
   }
 });
 
-// ✅ Export app for testing
+// ✅ Export app for tests
 module.exports = app;
 
-// ✅ Start server
+// ✅ Run server (Render reads process.env.PORT)
 if (require.main === module) {
-  const PORT = process.env.PORT;
+  const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
     console.log(`🚀 Server running at http://localhost:${PORT}`);
   });
