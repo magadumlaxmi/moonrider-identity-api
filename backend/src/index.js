@@ -109,8 +109,9 @@ module.exports = app;
 
 // ✅ Run server (Render reads process.env.PORT)
 if (require.main === module) {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
+  const PORT = process.env.PORT || 3000; // <-- fallback for local testing
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Server running at http://localhost:${PORT}`);
   });
 }
+
