@@ -58,5 +58,10 @@ app.post('/identify', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Listening on port ${PORT}`));
+// ✅ Run server (Render reads process.env.PORT)
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Server running at http://localhost:${PORT}`);
+  });
+}
