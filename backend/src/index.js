@@ -4,114 +4,59 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 
 dotenv.config();
-
 const app = express();
 const prisma = new PrismaClient();
 
-// ✅ CORS: Allow frontend domain (Vercel)
+// CORS
 app.use(cors({
-  origin: 'https://moonrider-identity-api.vercel.app', // Your Vercel frontend
-  methods: ['POST', 'GET'],
-  credentials: true
+  origin: '*',
+  methods: ['GET','POST'],
+  allowedHeaders: ['Content-Type']
 }));
 
 app.use(express.json());
 
-// ✅ Home route
 app.get('/', (req, res) => {
   res.send('✅ Moonrider Identity API is live. Use POST /identify');
 });
 
-// ✅ Identify API
 app.post('/identify', async (req, res) => {
   const { email, phoneNumber } = req.body;
-
-  if (!email && !phoneNumber) {
-    return res.status(400).json({ error: 'At least one of email or phoneNumber is required.' });
-  }
-
+  if (!email && !phoneNumber) return res.status(400).json({ error: 'At least one of email or phoneNumber is required.' });
   try {
     const contacts = await prisma.contact.findMany({
-      where: {
-        OR: [
-          email ? { email } : undefined,
-          phoneNumber ? { phoneNumber } : undefined
-        ].filter(Boolean)
-      },
+      where: { OR: [email ? { email } : undefined, phoneNumber ? { phoneNumber } : undefined].filter(Boolean) },
       orderBy: { createdAt: 'asc' }
     });
 
-    let primaryContact = null;
-    let allContacts = [...contacts];
-
-    if (contacts.length === 0) {
-      const newPrimary = await prisma.contact.create({
-        data: {
-          email,
-          phoneNumber,
-          linkPrecedence: 'primary'
-        }
-      });
-      primaryContact = newPrimary;
-      allContacts = [newPrimary];
+    let primaryContact = contacts.find(c => c.linkPrecedence === 'primary') || contacts[0];
+    if (!primaryContact) {
+      primaryContact = await prisma.contact.create({ data: { email, phoneNumber, linkPrecedence: 'primary' } });
     } else {
-      primaryContact = contacts.find(c => c.linkPrecedence === 'primary') || contacts[0];
-
-      const alreadyExists = contacts.some(c =>
-        (email && c.email === email) && (phoneNumber && c.phoneNumber === phoneNumber)
+      const exists = contacts.some(c => 
+        (email && c.email === email) || (phoneNumber && c.phoneNumber === phoneNumber)
       );
-
-      if (!alreadyExists) {
-        const newSecondary = await prisma.contact.create({
-          data: {
-            email,
-            phoneNumber,
-            linkPrecedence: 'secondary',
-            linkedId: primaryContact.id
-          }
+      if (!exists) {
+        await prisma.contact.create({
+          data: { email, phoneNumber, linkPrecedence: 'secondary', linkedId: primaryContact.id }
         });
-        allContacts.push(newSecondary);
       }
     }
 
-    const linkedContacts = await prisma.contact.findMany({
-      where: {
-        OR: [
-          { id: primaryContact.id },
-          { linkedId: primaryContact.id }
-        ]
-      }
+    const linked = await prisma.contact.findMany({
+      where: { OR: [{ id: primaryContact.id }, { linkedId: primaryContact.id }] }
     });
 
-    const emails = [...new Set(linkedContacts.map(c => c.email).filter(Boolean))];
-    const phoneNumbers = [...new Set(linkedContacts.map(c => c.phoneNumber).filter(Boolean))];
-    const secondaryContactIds = linkedContacts
-      .filter(c => c.linkPrecedence === 'secondary')
-      .map(c => c.id);
+    const emails = Array.from(new Set(linked.map(c => c.email).filter(Boolean)));
+    const phoneNumbers = Array.from(new Set(linked.map(c => c.phoneNumber).filter(Boolean)));
+    const secondaryContactIds = linked.filter(c => c.linkPrecedence === 'secondary').map(c => c.id);
 
-    res.status(200).json({
-      contact: {
-        primaryContactId: primaryContact.id,
-        emails,
-        phoneNumbers,
-        secondaryContactIds
-      }
-    });
-
+    res.json({ contact: { primaryContactId: primaryContact.id, emails, phoneNumbers, secondaryContactIds } });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Server error' });
   }
 });
 
-// ✅ Export app for tests
-module.exports = app;
-
-// ✅ Run server (Render reads process.env.PORT)
-if (require.main === module) {
-  const PORT = process.env.PORT || 3000; // <-- fallback for local testing
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Server running at http://localhost:${PORT}`);
-  });
-}
-
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Listening on port ${PORT}`));
