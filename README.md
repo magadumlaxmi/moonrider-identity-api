@@ -1,71 +1,39 @@
 # 🌙 Moonrider Identity Reconciliation API
 
-A backend + frontend project that performs identity reconciliation using email and phone number inputs. It identifies unique users by intelligently linking related contact records.
+A powerful backend service for resolving user identities based on shared email addresses or phone numbers. Built using **Node.js**, **Express**, and **Prisma ORM**, with a live frontend hosted on **Vercel**.
 
-## 🚀 Live Demo
+## 🔗 Live Links
 
-- **Backend (API)**: [Render Live API](https://moonrider-identity-api-1.onrender.com)
-- **Frontend (UI)**: [Vercel Live App](https://moonrider-identity-ui.vercel.app)
-
----
-
-## 📌 Features
-
-- Accepts input via email and/or phone number
-- Reconciles identities using existing records in PostgreSQL
-- Returns a unified contact view including primary & secondary contacts
-- Simple frontend to test the API
-- Hosted on Render (Backend) and Vercel (Frontend)
+- 🛰️ Backend: [Moonrider API on Render](https://moonrider-identity-api-1.onrender.com)
+- 🖥️ Frontend: [Vercel Live App](https://moonrider-identity-frontend.vercel.app/)
 
 ---
 
-## 🛠️ Tech Stack
+## ⚙️ Tech Stack
 
-### Backend:
-- **Node.js**
-- **Express.js**
-- **Prisma ORM**
-- **PostgreSQL**
-- **Render** (deployment)
-
-### Frontend:
-- **HTML5, CSS3, JavaScript**
-- **Vercel** (deployment)
+- **Backend**: Node.js, Express.js
+- **ORM**: Prisma
+- **Database**: PostgreSQL (hosted on Render)
+- **Frontend**: HTML, CSS, JavaScript
+- **Hosting**: Render (Backend), Vercel (Frontend)
+- **Version Control**: Git & GitHub
 
 ---
 
-## 🧩 API Endpoint
+## 📦 Features
 
-### `POST /identify`
+- Add & identify users via email or phone
+- Resolve identities based on precedence logic
+- Returns primary and secondary contact grouping
+- Deployed API & frontend for real-time interaction
 
-#### Request Body:
-```json
-{
-  "email": "user@example.com",
-  "phoneNumber": "1234567890"
-}
-Response:
-json
-Copy code
-{
-  "contact": {
-    "primaryContactId": 1,
-    "emails": ["user@example.com"],
-    "phoneNumbers": ["1234567890"],
-    "secondaryContactIds": [2, 3]
-  }
-}
-🖥️ Run Locally
-Prerequisites:
-Node.js and npm
+---
 
-PostgreSQL (or use a Render hosted DB)
+## 🚀 How to Run Locally
 
-Prisma CLI: npm install prisma --save-dev
+### Backend Setup
 
-Setup Instructions:
-bash
-Copy code
+```bash
 # Clone the repo
 git clone https://github.com/magadumlaxmi/moonrider-identity-api.git
 cd moonrider-identity-api/backend
@@ -73,40 +41,52 @@ cd moonrider-identity-api/backend
 # Install dependencies
 npm install
 
-# Setup environment variables
-cp .env.example .env  # then add your DATABASE_URL inside
-
-# Run Prisma migration
+# Generate Prisma client & migrate
+npx prisma generate
 npx prisma migrate dev --name init
 
-# Start the server
+# Run the server
 npm start
-🌐 Deployment URLs
-Service	URL
-Backend	Render
-Frontend	Vercel
-GitHub	Repository
+```
 
-📂 Folder Structure
-pgsql
-Copy code
-moonrider-identity-api/
-├── backend/
-│   ├── prisma/
-│   │   ├── schema.prisma
-│   │   └── migrations/
-│   ├── index.js
-│   ├── package.json
-│   └── .env
-├── frontend/
-│   └── index.html
-└── README.md
-🤝 Contributing
-Pull requests are welcome! If you’d like to suggest enhancements or fixes, open an issue first to discuss.
+### Frontend Setup
 
-📄 License
-This project is licensed under the MIT License.
+Just open the `index.html` in any browser, or deploy it using [Vercel](https://vercel.com).
 
-🙋‍♀️ Author
-Laxmi Magadum
+---
+
+## 📮 API Endpoint
+
+`POST /identify`  
+**Body** (JSON):
+```json
+{
+  "email": "a@example.com",
+  "phoneNumber": "1234567890"
+}
+```
+
+**Returns**:
+```json
+{
+  "contact": {
+    "primaryContactId": 1,
+    "emails": ["a@example.com"],
+    "phoneNumbers": ["1234567890"],
+    "secondaryContactIds": [2, 3]
+  }
+}
+```
+
+---
+
+## 🧑‍💻 Author
+
+**Laxmi Magadum**  
 [GitHub Profile](https://github.com/magadumlaxmi)
+
+---
+
+## 📝 License
+
+This project is open source and free to use under the [MIT License](LICENSE).
