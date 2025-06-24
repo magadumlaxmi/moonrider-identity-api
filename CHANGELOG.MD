@@ -29,3 +29,7 @@ Basic Express API with static list of products
 GET endpoint /products
 
 Dockerized service with minimal node:alpine image
+
+👨‍💼 Author
+
+Laxmi Magadum
