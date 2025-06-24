@@ -1,77 +1,106 @@
-# 🌙 Moonrider Identity Reconciliation API
+# 🧠 Moonrider Backend - Identity Reconciliation API
 
-A powerful backend service for resolving user identities based on shared email addresses or phone numbers. Built using **Node.js**, **Express**, and **Prisma ORM**, with a live frontend hosted on **Vercel**.
+A high-performance Identity Reconciliation API for managing and unifying user contact records by intelligently resolving identities using email and phone number.
 
-## 🔗 Live Links
-
-- 🛰️ Backend: [Moonrider API on Render](https://moonrider-identity-api-1.onrender.com)
-- 🖥️ Frontend: [Vercel Live App](https://moonrider-identity-frontend.vercel.app/)
+This project was built as part of a backend engineering challenge and meets all required and bonus objectives using modern technologies and clean architecture.
 
 ---
 
-## ⚙️ Tech Stack
+## ✅ Assignment Compliance
 
-- **Backend**: Node.js, Express.js
-- **ORM**: Prisma
-- **Database**: PostgreSQL (hosted on Render)
-- **Frontend**: HTML, CSS, JavaScript
-- **Hosting**: Render (Backend), Vercel (Frontend)
-- **Version Control**: Git & GitHub
-
----
-
-## 📦 Features
-
-- Add & identify users via email or phone
-- Resolve identities based on precedence logic
-- Returns primary and secondary contact grouping
-- Deployed API & frontend for real-time interaction
+| Requirement                           | Status |
+|---------------------------------------|--------|
+| `/identify` endpoint                  | ✅     |
+| Primary/Secondary contact logic       | ✅     |
+| Primary demotion + contact merging    | ✅     |
+| Prisma schema and DB integration      | ✅     |
+| Custom error handling (bonus)         | ✅     |
+| Comprehensive test coverage (bonus)   | ✅     |
+| Public GitHub repository              | ✅     |
+| README with full documentation        | ✅     |
 
 ---
 
-## 🚀 How to Run Locally
+## 🚀 Features
 
-### Backend Setup
+- Identifies users via email or phone
+- Maintains identity groups with primary/secondary contacts
+- Handles conflicting records with demotion logic
+- Fast reconciliation using optimized data modeling
+- Simple REST API built using Express.js
+- Extensive test coverage with Jest and Supertest
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer         | Technology       |
+|---------------|------------------|
+| Language      | JavaScript (Node.js) |
+| Framework     | Express.js       |
+| ORM/Database  | Prisma ORM, SQLite |
+| Testing       | Jest, Supertest  |
+| Deployment    | Render (Backend), Vercel (Frontend) |
+
+---
+
+## 📦 Setup Instructions
+
+### 1. Clone the repository
 
 ```bash
-# Clone the repo
 git clone https://github.com/magadumlaxmi/moonrider-identity-api.git
-cd moonrider-identity-api/backend
-
-# Install dependencies
+cd moonrider-identity-api
 npm install
-
-# Generate Prisma client & migrate
-npx prisma generate
-npx prisma migrate dev --name init
-
-# Run the server
-npm start
 ```
 
-### Frontend Setup
+### 2. Environment Configuration
 
-Just open the `index.html` in any browser, or deploy it using [Vercel](https://vercel.com).
+Create a `.env` file with the following:
+
+```env
+DATABASE_URL="file:./dev.db"
+```
+
+### 3. Prisma & DB Setup
+
+```bash
+npx prisma generate
+npx prisma db push
+```
+
+### 4. Start Server
+
+```bash
+node index.js
+```
+
+API runs locally at: `http://localhost:3000`
 
 ---
 
-## 📮 API Endpoint
+## 📬 API Endpoint
 
-`POST /identify`  
-**Body** (JSON):
+### POST `/identify`
+
+Reconciles identity for a user using email and/or phone number.
+
+#### 🔸 Request
+
 ```json
 {
-  "email": "a@example.com",
+  "email": "example@domain.com",
   "phoneNumber": "1234567890"
 }
 ```
 
-**Returns**:
+#### 🔹 Response
+
 ```json
 {
   "contact": {
     "primaryContactId": 1,
-    "emails": ["a@example.com"],
+    "emails": ["example@domain.com"],
     "phoneNumbers": ["1234567890"],
     "secondaryContactIds": [2, 3]
   }
@@ -80,13 +109,50 @@ Just open the `index.html` in any browser, or deploy it using [Vercel](https://v
 
 ---
 
-## 🧑‍💻 Author
+## 🧪 Run Tests
 
-**Laxmi Magadum**  
-[GitHub Profile](https://github.com/magadumlaxmi)
+```bash
+npx jest
+```
+
+Test coverage includes:
+
+- Primary record creation
+- Secondary linking logic
+- Conflict resolution
+- Error handling
+
+Test file: `test/identify.test.js`
 
 ---
 
-## 📝 License
+## 📁 Project Structure
 
-This project is open source and free to use under the [MIT License](LICENSE).
+```
+.
+├── backend/
+│   ├── index.js
+│   └── prisma/
+│       └── schema.prisma
+├── test/
+│   └── identify.test.js
+├── .env
+├── package.json
+└── README.md
+```
+
+---
+
+## 👤 Author
+
+**Laxmi Magadum**  
+GitHub: [@magadumlaxmi](https://github.com/magadumlaxmi)
+
+---
+
+## 📄 License
+
+Licensed under the [MIT License](LICENSE).
+
+---
+
